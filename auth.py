@@ -1,8 +1,8 @@
 import base64, requests, datetime
 
 
-client_id = '3d7492c326a6491c9c5cd8a9c024d239'
-client_secret = '67d182ae84184c48805c03906fdaf4e7'
+client_id = '3d7492....024d239'
+client_secret = '67d182ae.....6fdaf4e7'
 
 client_creds = f"{client_id}:{client_secret}"
 
