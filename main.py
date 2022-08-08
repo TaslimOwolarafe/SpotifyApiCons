@@ -96,18 +96,30 @@ class SpotifyApi(object):
     def get_artist(self, _id):
         return self.get_resource(_id, resource_type='artists')
 
-    def search(self, query, search_type='artist'):
-        access_token = self.get_access_token()
+    def base_search(self, query_params):
         headers = self.get_resource_headers()
         endpoint = "https://api.spotify.com/v1/search"
-        data =urlencode({'q': query, "type":search_type.lower()})
-        lookup_url = f"{endpoint}?{data}"
+        lookup_url = f"{endpoint}?{query_params}"
         print(lookup_url)
         r = requests.get(lookup_url, headers=headers)
         print("search status..",r.status_code)
         if r.status_code not in range(200, 299):
             return {}
         return r.json()
+
+    def search(self, query=None, operator=None, operator_query=None, search_type='artist'):
+        if query == None:
+            raise Exception("Empty query. Query reqrd..")
+        if isinstance(query, dict):
+            query = " ".join([f"{k}:{v}" for k,v in query.items()])
+            print(query)
+        if operator != None and operator_query != None:
+            if operator.lower() == "or" or operator.lower() == "not":
+                operator.upper()
+                if isinstance(operator, str):
+                    query = f"{query} {operator} {operator_query}"
+        query_params =urlencode({'q': query, "type":search_type.lower()})
+        return self.base_search(query_params)
 
 import json
 def cred():
@@ -116,10 +128,12 @@ def cred():
 client = SpotifyApi(client_id, client_secret)
 client.perform_auth()
 print(client.access_token)
-response = client.search("Moon", search_type="track")['tracks']['items']
+# response = client.search("Moon", search_type="track")['tracks']['items']
 # for i in response:
 #     print(i, "\n \n")
-print(response[1]['album'])
+# print(response[1]['album'])
 
 
-print(client.get_artist('0du5cEVh5yTK9QJze8zA0C')['name'])
+# print(client.get_artist('0du5cEVh5yTK9QJze8zA0C')['name'])
+# print(client.search({"track":"moon", "artist":"Kanye West"}, search_type="track"))
+print(client.search(query={"track":"Hostage"},operator='NOT', operator_query='sia', search_type="track")['tracks']['items'])
